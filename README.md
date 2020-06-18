@@ -4,7 +4,8 @@ Testing example leveraging Moq and AutoFixture
 ## Moq
 Moq is a mocking library for .Net
 
-```csharp [Fact]
+```csharp 
+[Fact]
 public void Should_Ship_Order_When_Payment_Successful()
 {
     var mockOrder = new Mock<Order>();
