@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Orders
+﻿namespace Orders
 {
     public class OrdersController
     {
@@ -8,7 +6,9 @@ namespace Orders
         private readonly IShippingService _shippingService;
         private readonly IAuditLogger _auditLogger;
 
-        public OrdersController(IPaymentService paymentService, IShippingService shippingService, IAuditLogger auditLogger)
+        public OrdersController(IPaymentService paymentService, 
+                                IShippingService shippingService, 
+                                IAuditLogger auditLogger)
         {
             _paymentService = paymentService;
             _shippingService = shippingService;
@@ -32,30 +32,4 @@ namespace Orders
             return response;
         }
     }
-
-    public interface IPaymentService
-    {
-        PaymentResult Pay(Order order);
-    }
-    public interface IShippingService
-    {
-        ShippingResult Ship(Order order);
-    }
-    public interface IAuditLogger
-    {
-        void LogOrder(Order order, OrderResponse response);
-    }
-
-    public class OrderResponse
-    {
-        public PaymentResult PaymentResult { get; set; }
-        public ShippingResult ShippingResult { get; set; }
-    }
-    public class Order { }
-
-    public class PaymentResult
-    {
-        public bool Success { get; set; }
-    }
-    public class ShippingResult { }
 }
