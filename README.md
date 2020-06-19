@@ -131,6 +131,42 @@ public void Should_Only_Call_Ship_Order_On_Successful_Payment(bool isSuccessOrde
 }
 ```
 
+**Moq** allows us to `Verify` that a mocked method was called with particular values by using `It.Is<T>()`. In this test we want to make sure that the `AuditLogger` was called in both the Success and Failure cases. We would like to make our test a bit stronger than that and ensure that if the failure is due to a payment failure that the failure is reflected in the `OrderResponse` that returns from the `OrderController`. 
+```csharp
+[Theory]
+[InlineData(true)]
+[InlineData(false)]
+public void Should_Call_Audit_Logger_When_Order_Attempted(bool isSuccessOrder)
+{
+    var mockShippingService = new Mock<IShippingService>();
+    var mockAuditLogger = new Mock<IAuditLogger>();
+    var mockPaymentService = new Mock<IPaymentService>();
+
+    var ordersController = new OrdersController(
+        mockPaymentService.Object,
+        mockShippingService.Object,
+        mockAuditLogger.Object);
+
+    mockPaymentService.Setup(paymentService => paymentService.Pay(It.IsAny<Order>()))
+        .Returns(new PaymentResult
+        {
+            Success = isSuccessOrder
+        });
+
+    mockShippingService.Setup(shippingService => shippingService.Ship(It.IsAny<Order>()))
+        .Returns(new ShippingResult
+        {
+            Success = isSuccessOrder
+        });
+
+    var order = new Order { PaymentMethod = "SuperCard" };
+    ordersController.SubmitOrder(order);
+
+    mockAuditLogger.Verify(al => al.LogOrder(
+        It.IsAny<Order>(),
+        It.Is<OrderResponse>(or => or.PaymentResult.Success == isSuccessOrder)));
+}
+```
 
 ## AutoFixture
 
