@@ -287,7 +287,7 @@ public void Should_Call_Audit_Logger_When_Order_Attempted_MemberData(bool isSucc
         It.IsAny<Order>(),
         It.Is<OrderResponse>(or => or.PaymentResult.Success == isSuccessOrder)));
 }
-
+```
 
 Often we want to know how our code will behave should a compenent that it depends on raises an exception. Moq gives us an easy way of setting up mocks such that when invoked they will throw a particular exception.
 ```csharp
