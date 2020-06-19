@@ -1,11 +1,12 @@
 # Writing tests with Xunit, Moq, AutoFixture & FluentValidations
-Testing example leveraging Moq and AutoFixture. These examples also make use of the Xunit test framework as well as FluentAssertions for well the assertions.
+Unit Testing examples leveraging Xunit, Moq, AutoFixture & FluentValidations packages.
 
+**XUnit** is a unit testing framework.
 **Moq** is a mocking library for .Net. Moq allows us to quickly and easily setup mocks and make verifications against those instances in our unit tests. 
-**
+**AutoFixture** makes object creation and data generation a breeze. Allows for customizations and integrations with other testing tools like Moq.
+**FluentValidations** provides a fluent API for assertions in  your unit tests.
 
 ## Moq Examples
-
 
 Imagine for a moment that we are about to test the world's greatest ordering system...
 ```csharp
