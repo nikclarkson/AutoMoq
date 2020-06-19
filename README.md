@@ -74,7 +74,7 @@ mock.Setup(...); // Setup allows us to implement behaviors on methods and proper
 mock.Verify(...); // Verify allows us to assert that certain interactions with the mock instance occurred. 
 ```
 
-Now that we know the basic hooks that Moq gives us we can test our award winning OrdersController.  In order to test the `OrdersController` behavior we will want to `Setup()` our `PaymentService` **Moq** to return a success. Then to assert the controller works as advertised we can `Verify()` that the `ShippingService` **Moq** was called appropriately.
+Now that we know the basic hooks that Moq gives us we can test our award winning OrdersController.  In order to test the `OrdersController` behavior we will want to `Setup()` our `PaymentService` mock to return a success. Then to assert the controller works as advertised we can `Verify()` that the `ShippingService` mock was called appropriately.
 ```csharp 
 [Fact]
 public void Should_Ship_Order_When_Payment_Successful()
@@ -98,6 +98,36 @@ public void Should_Ship_Order_When_Payment_Successful()
     ordersController.SubmitOrder(order);
 
     mockShippingService.Verify(shippingService => shippingService.Ship(It.IsAny<Order>()), Times.Once);
+}
+```
+Now that we have tested that the `OrdersController` properly calls the `ShippingService` when the `PaymentService` call is succesful we should test that the opposite is enforced. The failure scenario is effectively the same test but with different **Expected** and **Actual** values.  The previous *XUnit* `[Fact]` tests a single specific scenario, but by attributing our test method as a `[Theory]` instead gives us the chance to provide data to the test that we can use to modify the expectation.
+```csharp
+[Theory]
+[InlineData(true)]
+[InlineData(false)]
+public void Should_Only_Call_Ship_Order_On_Successful_Payment(bool isSuccessOrder)
+{
+    var mockShippingService = new Mock<IShippingService>();
+    var mockAuditLogger = new Mock<IAuditLogger>();
+    var mockPaymentService = new Mock<IPaymentService>();
+
+    var ordersController = new OrdersController(
+        mockPaymentService.Object,
+        mockShippingService.Object,
+        mockAuditLogger.Object);
+
+    mockPaymentService.Setup(paymentService => paymentService.Pay(It.IsAny<Order>()))
+        .Returns(new PaymentResult
+        {
+            Success = isSuccessOrder
+        });
+
+    var order = new Order();
+    ordersController.SubmitOrder(order);
+
+    mockShippingService.Verify(
+        shippingService => shippingService.Ship(It.IsAny<Order>()), 
+        isSuccessOrder ? Times.Once() : Times.Never());
 }
 ```
 

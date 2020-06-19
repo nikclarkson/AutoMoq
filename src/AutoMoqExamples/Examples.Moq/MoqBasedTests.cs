@@ -36,7 +36,7 @@ namespace Examples.Moq
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void Should_Call_Ship_Order_On_Successful_Payment(bool isSuccessOrder)
+        public void Should_Only_Call_Ship_Order_On_Successful_Payment(bool isSuccessOrder)
         {
             var mockShippingService = new Mock<IShippingService>();
             var mockAuditLogger = new Mock<IAuditLogger>();
