@@ -1,4 +1,6 @@
-﻿namespace Orders
+﻿using System;
+
+namespace Orders
 {
     public class OrdersController
     {
@@ -17,17 +19,31 @@
 
         public OrderResponse SubmitOrder(Order order)
         {
-            var paymentResult = _paymentService.Pay(order);
-            ShippingResult shippingResult = null;
+            OrderResponse response;
 
-            if (paymentResult.Success)
+            try
             {
-                shippingResult = _shippingService.Ship(order);
+                var paymentResult = _paymentService.Pay(order);
+                ShippingResult shippingResult = null;
+
+                if (paymentResult.Success)
+                {
+                    shippingResult = _shippingService.Ship(order);
+                }
+
+                response = new OrderResponse
+                {
+                    Success = paymentResult.Success && shippingResult.Success,
+                    PaymentResult = paymentResult,
+                    ShippingResult = shippingResult
+                };
+
+                _auditLogger.LogOrder(order, response);
             }
-
-            var response = new OrderResponse { PaymentResult = paymentResult, ShippingResult = shippingResult };
-
-            _auditLogger.LogOrder(order, response);
+            catch (Exception)
+            {
+                response = new OrderResponse { Success = false };
+            }
 
             return response;
         }

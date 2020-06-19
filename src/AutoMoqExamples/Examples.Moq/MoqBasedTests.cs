@@ -1,5 +1,7 @@
-﻿using Moq;
+﻿using FluentAssertions;
+using Moq;
 using Orders;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -79,7 +81,13 @@ namespace Examples.Moq
                     Success = isSuccessOrder
                 });
 
-            var order = new Order();
+            mockShippingService.Setup(shippingService => shippingService.Ship(It.IsAny<Order>()))
+               .Returns(new ShippingResult
+               {
+                   Success = isSuccessOrder
+               });
+
+            var order = new Order { PaymentMethod = "SuperCard" };
             ordersController.SubmitOrder(order);
 
             mockAuditLogger.Verify(al => al.LogOrder(
@@ -106,6 +114,12 @@ namespace Examples.Moq
                 {
                     Success = !isSuccessOrder // intentionally incorrect to demonstration failure message
                 });
+
+            mockShippingService.Setup(shippingService => shippingService.Ship(It.IsAny<Order>()))
+              .Returns(new ShippingResult
+              {
+                  Success = isSuccessOrder
+              });
 
             var actualResult = false;
             mockAuditLogger.Setup(al => al.LogOrder(It.IsAny<Order>(), It.IsAny<OrderResponse>()))
@@ -139,6 +153,12 @@ namespace Examples.Moq
                     Success = isSuccessOrder
                 });
 
+            mockShippingService.Setup(shippingService => shippingService.Ship(It.IsAny<Order>()))
+              .Returns(new ShippingResult
+              {
+                  Success = isSuccessOrder
+              });
+
             var order = new Order();
             ordersController.SubmitOrder(order);
 
@@ -153,5 +173,43 @@ namespace Examples.Moq
             new object[] { true },
             new object[] { false },
         };
+
+        [Fact]
+        public void Should_Verify_Shipping_Exception_Was_Thrown()
+        {
+            var mockShippingService = new Mock<IShippingService>();
+            var mockAuditLogger = new Mock<IAuditLogger>();
+            var mockPaymentService = new Mock<IPaymentService>();
+
+            var ordersController = new OrdersController(
+                mockPaymentService.Object,
+                mockShippingService.Object,
+                mockAuditLogger.Object);
+
+            mockPaymentService.Setup(paymentService => paymentService.Pay(It.IsAny<Order>()))
+               .Returns(new PaymentResult
+               {
+                   Success = true
+               });
+
+            mockShippingService.Setup(shippingService => shippingService.Ship(It.IsAny<Order>()))
+               .Throws(It.IsAny<Exception>());
+
+            var order = new Order { PaymentMethod = "SuperCard" };
+            var response = ordersController.SubmitOrder(order);
+
+            response.Success.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Should_Throw_On_Invalid_Payment_Method_FluentValidations()
+        {
+            var paymentService = new PaymentService();
+
+            var order = new Order { PaymentMethod = string.Empty };
+
+            Action pay = () => paymentService.Pay(order);
+            pay.Should().Throw<Exception>();
+        }
     }
 }

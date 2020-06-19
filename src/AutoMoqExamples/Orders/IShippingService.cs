@@ -1,4 +1,6 @@
-﻿namespace Orders
+﻿using System;
+
+namespace Orders
 {
     public interface IShippingService
     {
