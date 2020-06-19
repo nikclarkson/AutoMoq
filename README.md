@@ -230,7 +230,20 @@ public void Should_Call_Audit_Logger_When_Order_Attempted_WithFailMessage(bool i
 }
 ```
 
-We have been making use of XUnit's `[InlineData]` attribute in building `[Theory]` unit test, but we can also get our test data sets from sources other that attributes. Using XUnit's `[MemberData]` attribute we can specify a data source. In this setup we will be providing a collection of arrays of objects.
+Now the previous test provides us more visibility into what went wrong with our test case. The failure message makes our expected and actual values clear.
+```csharp
+Message: 
+    Moq.MockException : Expected AuditLog with PaymentResult.Success == False but was True
+    Expected invocation on the mock at least once, but was never performed: al => al.LogOrder(It.IsAny<Order>(), It.Is<OrderResponse>(or => or.PaymentResult.Success == False))
+    
+    Performed invocations:
+    
+       Mock<IAuditLogger:4> (al):
+    
+          IAuditLogger.LogOrder(Order, OrderResponse)
+```
+
+So far we have been making use of XUnit's `[InlineData]` attribute in building `[Theory]` unit test, but we can also get our test data sets from sources other that attributes. Using XUnit's `[MemberData]` attribute we can specify a data source. In this setup we will be providing a collection of arrays of objects.
 ```csharp
 public static IEnumerable<object[]> Data =>
 new List<object[]>
