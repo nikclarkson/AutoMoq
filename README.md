@@ -61,7 +61,7 @@ public class OrdersController
 }
 ```
 
-We would like to test the behavior that the order is sent over to the shipping department once the customer has successfully paid for the order. We will want an actual concrete instance of the OrdersController, but everything it depends on can be mocks at this point.
+We would like to test the behavior that the order is sent over to the shipping service once the customer has successfully paid for the order. In order to accomplish this we will want an actual concrete instance of the OrdersController, but everything it depends on can be mocks.
 
 Creating Mocks with Moq is really simple.
 ```csharp
@@ -74,7 +74,7 @@ mock.Setup(...); // Setup allows us to implement behaviors on methods and proper
 mock.Verify(...); // Verify allows us to assert that certain interactions with the mock instance occurred. 
 ```
 
-Now that we know the basic hooks that Moq gives us we can test our award winning OrdersController.
+Now that we know the basic hooks that Moq gives us we can test our award winning OrdersController.  In order to test the `OrdersController` behavior we will want to `Setup()` our `PaymentService` **Moq** to return a success. Then to assert the controller works as advertised we can `Verify()` that the `ShippingService` **Moq** was called appropriately.
 ```csharp 
 [Fact]
 public void Should_Ship_Order_When_Payment_Successful()
@@ -93,7 +93,6 @@ public void Should_Ship_Order_When_Payment_Successful()
         {
             Success = true 
         });
-
     
     var order = new Order();
     ordersController.SubmitOrder(order);
