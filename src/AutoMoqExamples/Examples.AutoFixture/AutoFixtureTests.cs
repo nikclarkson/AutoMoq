@@ -172,7 +172,7 @@ namespace Examples.AutoFixture
             var fixture = new Fixture();
             fixture.Customize(new AutoMoqCustomization());
 
-            var orders = fixture.CreateMany();
+            var orders = fixture.CreateMany<Order>();
 
             orders.GroupBy(o => o.OrderId).Any(group => group.Count() > 1).Should().BeTrue();
         }
