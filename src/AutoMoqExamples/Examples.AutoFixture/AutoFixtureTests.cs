@@ -5,6 +5,9 @@ using FluentAssertions;
 using Moq;
 using Orders;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Examples.AutoFixture
@@ -42,7 +45,6 @@ namespace Examples.AutoFixture
              * PaymentMethod = "PaymentMethodfc4b163e-38b8-4942-9d52-1090ad0341ee"
              * Decimal = 194
              */
-
         }
 
         [Fact]
@@ -164,6 +166,45 @@ namespace Examples.AutoFixture
             ordersController.SubmitOrder(order);
 
             ssMock.Verify(shippingService => shippingService.Ship(It.IsAny<Order>()), Times.Once);
+        }
+
+        [Fact]
+        public void Should_Build_Many_Orders()
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new AutoMoqCustomization());
+
+            var orders = fixture.Build<Order>()
+                                .With(o => o.OrderId, Guid.NewGuid().ToString())
+                                .CreateMany();
+
+            orders.GroupBy(o => o.OrderId).Any(group => group.Count() > 1).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Should_Build_Many_Orders_With_Guid_Only()
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new AutoMoqCustomization());
+
+            var orders = fixture.Build<Order>()
+                                .With(o => o.OrderId, Guid.NewGuid().ToString()) 
+                                .CreateMany();
+
+            orders.GroupBy(o => o.OrderId).Any(group => group.Count() > 1).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Should_Build_Many_Orders_With_Customization()
+        {
+            var fixture = new Fixture();
+            fixture.Customize( new AutoMoqCustomization());
+
+            fixture.Customizations.Add(new OrderBuilder());
+
+            var orders = fixture.CreateMany<Order>();
+
+            orders.GroupBy(o => o.OrderId).Any(group => group.Count() > 1).Should().BeFalse();
         }
     }
 }

@@ -4,6 +4,7 @@ namespace Orders
 {
     public class Order 
     {
+        public string OrderId { get; set; }
         public string CustomerName { get; set; }
 
         public IEnumerable<string> OrderItems { get; set; }
