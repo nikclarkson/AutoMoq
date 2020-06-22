@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples.Moq", "Examples.Moq\Examples.Moq.csproj", "{9C5B218F-A0C4-47F8-A311-C8575D37C099}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Examples.Moq", "Examples.Moq\Examples.Moq.csproj", "{9C5B218F-A0C4-47F8-A311-C8575D37C099}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orders", "Orders\Orders.csproj", "{8DF6001E-8119-46E9-88FC-465E49D44428}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orders", "Orders\Orders.csproj", "{8DF6001E-8119-46E9-88FC-465E49D44428}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples.AutoFixture", "Examples.AutoFixture\Examples.AutoFixture.csproj", "{B45D83E8-CDA9-4A28-A601-E607964C0E23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{8DF6001E-8119-46E9-88FC-465E49D44428}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DF6001E-8119-46E9-88FC-465E49D44428}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DF6001E-8119-46E9-88FC-465E49D44428}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B45D83E8-CDA9-4A28-A601-E607964C0E23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B45D83E8-CDA9-4A28-A601-E607964C0E23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B45D83E8-CDA9-4A28-A601-E607964C0E23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B45D83E8-CDA9-4A28-A601-E607964C0E23}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
