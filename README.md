@@ -333,8 +333,9 @@ public void Should_Throw_On_Invalid_Payment_Method_FluentValidations()
 }
 ```
 
-## AutoFixture
+## AutoFixture Examples
 
+When we create an object using **Moq** we get a mock that only returns specific values for things we have Setup. If we take a look at the instance the mock gives us we will see that Members of the given class return a default value for the given type. 
 ```csharp
 [Fact]
 public void Should_Create_Moq_Data_Example()
@@ -344,14 +345,14 @@ public void Should_Create_Moq_Data_Example()
     var orderInstance = mock.Object as Order;
 }
 ```
+If we inspect the above `orderInstance` we will see that the property values aren't very interesting. If we used this object as a parameter to any sort of real behavior we would likely be met with a slew of exceptions. Depending on what we're testing we may not care to deal with those exceptions for the test at hand.
 ```csharp
 CustomerName = null
 OrderItems = null
 TotalPrice = 0
 PaymentMethod = null
 ```
-
-
+We can use another .Net package called **AutoFixture** to help us with some simple data generation. In this example we will use **AutoFixture**'s `Fixture` to create an instance of the `Order` class. 
 ```csharp
 [Fact]
 public void Should_Create_AutoFixture_Data_Example()
@@ -361,6 +362,8 @@ public void Should_Create_AutoFixture_Data_Example()
     var order = fixture.Create<Order>();
 }
 ```
+
+Below we can see that AutoFixture was able to provide values other than default for each property.
 ```chsharp
 CustomerName =  "CustomerName8c5b0c54-b381-4633-83f0-43685af001c6"
 OrderItems = { "32fab4ad-3c4d-4eca-a4ff-46a280c8a01a",
@@ -370,20 +373,19 @@ PaymentMethod = "PaymentMethodfc4b163e-38b8-4942-9d52-1090ad0341ee"
 Decimal = 194
 ```
 
+We can also ask AutoFixture to create an instance of the `PaymentService`. We have to take care that we are asking AutoFixture for what we really want. The following example shows that AutoFixture will throw an exception if we ask it to create an `IPaymentService` because I has no idea how to instantiate that interface. **Moq** gladly created a mock because it doesn't need the actual concreate type to be successful.
 ```chsarp
 [Fact]
 public void Should_Fail_Creating_IPaymentService()
 {
-
     var fixture = new Fixture();
-
     Action createPaymentService = () => fixture.Create<IPaymentService>();
 
     createPaymentService.Should().Throw<Exception>();
-
 }
 ```
 
+One way to get a `PaymentService` from AutoFixture it just to ask for it explicitly.
 ```csharp
 [Fact]
 public void Should__Not_Fail_Creating_IPaymentService_ConcreteType()
@@ -396,6 +398,7 @@ public void Should__Not_Fail_Creating_IPaymentService_ConcreteType()
 }
 ```
 
+If we are in a situation where we really want to be sticking with the interface we can help out AutoFixture by giving it a `TypeRelay` that maps the interface to the implementation.
 ```csharp
 [Fact]
 public void Should__Not_Fail_Creating_IPaymentService_TypeRelay()
@@ -412,6 +415,7 @@ public void Should__Not_Fail_Creating_IPaymentService_TypeRelay()
 }
 ```
 
+Let's use AutoFixture to test that our `PaymentService` throws the proper exception when given an invalid payment type.
 ```csharp
 [Fact]
 public void Should_Throw_Invalid_Payment()
@@ -435,6 +439,7 @@ public void Should_Throw_Invalid_Payment()
 }
 ```
 
+We can combine the goodness of **Moq** and **AutoFixture** by using the `AutoMoqCustomization`.  AutoFixture maintains its own dependency container and by adding this customization we can write tests even easier. In this example we ask the `Fixture` to give us an `OrdersController` and it happily does so. You'll notice that we haven't directly declared any of the controllers dependencies. This is because AutoFixture has leveraged the customization to ask Moq to create a mock instance for anything that it cannot find in its own container. 
 ```csharp
 [Fact]
 public void Should_Successfully_Mock_Dependencies()
@@ -452,6 +457,7 @@ public void Should_Successfully_Mock_Dependencies()
 }
 ```
 
+More interesting tests will still require more code, but hopefully with the `AutoMoqCustomization` we will only have to write the code that is necessary for the test we are conducting at the time. We can create and setup verify specific instances of objects or mock objects and `inject()` them into the `Fixture` so that AutoFixture will use that same instance anytime that it is needed as a dependency. 
 ```csharp
 [Fact]
 public void Should_Ship_Order_When_Payment_Successful()
@@ -480,6 +486,7 @@ public void Should_Ship_Order_When_Payment_Successful()
 }
 ```
 
+Instead of `Create()` and `Inject()` we can also call `Freeze()`. This seems to have fallen out of favor, but it is good to be aware of it and you can decide if using it is right for your test suite. 
 ```csharp
 [Fact]
 public void Should_Ship_Order_When_Payment_Successful_UsingFreeze()
@@ -505,6 +512,7 @@ public void Should_Ship_Order_When_Payment_Successful_UsingFreeze()
 }
 ```
 
+Let's generate a few orders.
 ```csharp
 [Fact]
 public void Should_Build_Many_Orders()
@@ -512,14 +520,13 @@ public void Should_Build_Many_Orders()
     var fixture = new Fixture();
     fixture.Customize(new AutoMoqCustomization());
 
-    var orders = fixture.Build<Order>()
-                        .With(o => o.OrderId, Guid.NewGuid().ToString())
-                        .CreateMany();
+    var orders = fixture.CreateMany<Order>();
 
     orders.GroupBy(o => o.OrderId).Any(group => group.Count() > 1).Should().BeTrue();
 }
 ```
 
+In the previous data generation example you might have noticed that our string values were `<ProperyName><Guid>`. There will be times that something like a `string` might actually contain a value like a guid id. So what if we need to tell AutoFixture how to generate a value? Instead of `Create()` we can do a `Build().With().Create()` that will give us a chance to customize values.
 ```csharp
 [Fact]
 public void Should_Build_Many_Orders_With_Guid_Only()
@@ -535,6 +542,26 @@ public void Should_Build_Many_Orders_With_Guid_Only()
 }
 ```
 
+An issue in the previous assertion is that each one of our Orders that was generated had the same OrderId which is bound to cause us some issue in our tests. AutoFixture allows customization of the data generation as well. For our given scenario we can use an `ISpecimenBuilder` to hook into AutoFixture's chain of responsiblity 
+```csharp
+public class OrderBuilder : ISpecimenBuilder
+{
+    public object Create(object request, ISpecimenContext context)
+    {
+        var expectedProperty = typeof(Order).GetProperty(nameof(Order.OrderId));
+
+        if (expectedProperty.Equals(request))
+        {
+            return Guid.NewGuid().ToString();
+        }
+
+        return new NoSpecimen();
+    }
+
+}
+```
+
+Now that we have a custom `OrderBuilder` we can add it to our fixture and get the results we want.
 ```csharp
 [Fact]
 public void Should_Build_Many_Orders_With_Customization()
