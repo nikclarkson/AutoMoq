@@ -232,7 +232,7 @@ public void Should_Call_Audit_Logger_When_Order_Attempted_WithFailMessage(bool i
 Now the previous test provides us more visibility into what went wrong with our test case. The failure message makes our expected and actual values clear.
 ```csharp
 Message: 
-    Moq.MockException : Expected AuditLog with PaymentResult.Success == False but was True
+    Moq.MockException : Expected AuditLog with OrderResponse.Success == False but was True
     Expected invocation on the mock at least once, but was never performed: 
         al => al.LogOrder(It.IsAny<Order>(), It.Is<OrderResponse>(or => or.Success == False))
     
@@ -317,7 +317,7 @@ public void Should_Verify_Shipping_Exception_Was_Thrown()
 }
 ```
 
-The next example doesn't actually involve Moq, but it does deal with exceptions and how FluentAssertions can help us validate those exceptions. Here we have an actual `PaymentService` instance that we except to throw an exception when an invalid `PaymentMethod` is submitted. To accomplish this assertion we create an `Action` that when executed will invoke our test *Act*. This gives FluentAssertions the ability to execute the behavior in its own context so that it can catch any exceptions for matching against the specified assertion.
+<!-- The next example doesn't actually involve Moq, but it does deal with exceptions and how FluentAssertions can help us validate those exceptions. Here we have an actual `PaymentService` instance that we except to throw an exception when an invalid `PaymentMethod` is submitted. To accomplish this assertion we create an `Action` that when executed will invoke our test *Act*. This gives FluentAssertions the ability to execute the behavior in its own context so that it can catch any exceptions for matching against the specified assertion.
 ```csharp
 [Fact]
 public void Should_Throw_On_Invalid_Payment_Method_FluentValidations()
@@ -328,7 +328,7 @@ public void Should_Throw_On_Invalid_Payment_Method_FluentValidations()
 
     Action pay = () => paymentService.Pay(order);
     pay.Should().Throw<Exception>();
-}
+} -->
 ```
 
 ## AutoFixture Examples
