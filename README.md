@@ -362,17 +362,17 @@ public void Should_Create_AutoFixture_Data_Example()
 ```
 
 Below we can see that AutoFixture was able to provide values other than default for each property.
-```chsharp
+```csharp
 CustomerName =  "CustomerName8c5b0c54-b381-4633-83f0-43685af001c6"
 OrderItems = { "32fab4ad-3c4d-4eca-a4ff-46a280c8a01a",
                 "c7adf91e-a134-4177-9cff-f6bed751a3f3",
                 "ab0d4fd0-1bba-489d-b447-7fc74a81e07c" }
 PaymentMethod = "PaymentMethodfc4b163e-38b8-4942-9d52-1090ad0341ee"
-Decimal = 194
+TotalPrice = 194
 ```
 
-We can also ask AutoFixture to create an instance of the `PaymentService`. We have to take care that we are asking AutoFixture for what we really want. The following example shows that AutoFixture will throw an exception if we ask it to create an `IPaymentService` because I has no idea how to instantiate that interface. **Moq** gladly created a mock because it doesn't need the actual concreate type to be successful.
-```chsarp
+We can also ask AutoFixture to create an instance of the `PaymentService`. We have to take care that we are asking AutoFixture for what we really want. The following example shows that AutoFixture will throw an exception if we ask it to create an `IPaymentService` because I has no idea how to instantiate that interface. **Moq** gladly created a mock because it doesn't need the actual concrete type to be successful.
+```csharp
 [Fact]
 public void Should_Fail_Creating_IPaymentService()
 {
