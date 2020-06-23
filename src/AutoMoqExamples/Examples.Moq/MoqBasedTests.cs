@@ -92,7 +92,7 @@ namespace Examples.Moq
 
             mockAuditLogger.Verify(al => al.LogOrder(
                 It.IsAny<Order>(),
-                It.Is<OrderResponse>(or => or.PaymentResult.Success == isSuccessOrder)));
+                It.Is<OrderResponse>(or => or.Success == isSuccessOrder)));
         }
 
         [Theory]
@@ -118,20 +118,20 @@ namespace Examples.Moq
             mockShippingService.Setup(shippingService => shippingService.Ship(It.IsAny<Order>()))
               .Returns(new ShippingResult
               {
-                  Success = isSuccessOrder
+                  Success = !isSuccessOrder // intentionally incorrect to demonstration failure message
               });
 
             var actualResult = false;
             mockAuditLogger.Setup(al => al.LogOrder(It.IsAny<Order>(), It.IsAny<OrderResponse>()))
-                           .Callback<Order, OrderResponse>((o, or) => actualResult = or.PaymentResult.Success);
+                           .Callback<Order, OrderResponse>((o, or) => actualResult = or.Success);
 
             var order = new Order();
             ordersController.SubmitOrder(order);
 
             mockAuditLogger.Verify(al => al.LogOrder(
                 It.IsAny<Order>(),
-                It.Is<OrderResponse>(or => or.PaymentResult.Success == isSuccessOrder)), 
-                $"Expected AuditLog with PaymentResult.Success == {isSuccessOrder} but was {actualResult}");
+                It.Is<OrderResponse>(or => or.Success == isSuccessOrder)), 
+                $"Expected AuditLog with OrderResponse.Success == {isSuccessOrder} but was {actualResult}");
         }
 
         [Theory]
@@ -164,7 +164,7 @@ namespace Examples.Moq
 
             mockAuditLogger.Verify(al => al.LogOrder(
                 It.IsAny<Order>(),
-                It.Is<OrderResponse>(or => or.PaymentResult.Success == isSuccessOrder)));
+                It.Is<OrderResponse>(or => or.Success == isSuccessOrder)));
         }
 
         public static IEnumerable<object[]> Data =>

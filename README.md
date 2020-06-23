@@ -100,7 +100,7 @@ public void Should_Ship_Order_When_Payment_Successful()
     mockShippingService.Verify(shippingService => shippingService.Ship(It.IsAny<Order>()), Times.Once);
 }
 ```
-Now that we have tested that the `OrdersController` properly calls the `ShippingService` when the `PaymentService` call is succesful we should test that the opposite is enforced. The failure scenario is effectively the same test but with different **Expected** and **Actual** values.  The previous *XUnit* `[Fact]` tests a single specific scenario, but by attributing our test method as a `[Theory]` instead gives us the chance to provide data to the test that we can use to modify the expectation.
+Now that we have tested that the `OrdersController` properly calls the `ShippingService`, when the `PaymentService` call is successful, we should test that the opposite is enforced. The failure scenario is effectively the same test but with different **Expected** and **Actual** values.  The previous *XUnit* `[Fact]` tests a single specific scenario, but by attributing our test method as a `[Theory]` we can provide a data set to test a range of values.
 ```csharp
 [Theory]
 [InlineData(true)]
@@ -164,7 +164,7 @@ public void Should_Call_Audit_Logger_When_Order_Attempted(bool isSuccessOrder)
 
     mockAuditLogger.Verify(al => al.LogOrder(
         It.IsAny<Order>(),
-        It.Is<OrderResponse>(or => or.PaymentResult.Success == isSuccessOrder)));
+        It.Is<OrderResponse>(or => or.Success == isSuccessOrder)));
 }
 ```
 
@@ -213,20 +213,20 @@ public void Should_Call_Audit_Logger_When_Order_Attempted_WithFailMessage(bool i
     mockShippingService.Setup(shippingService => shippingService.Ship(It.IsAny<Order>()))
         .Returns(new ShippingResult
         {
-            Success = isSuccessOrder
+            Success = !isSuccessOrder // intentionally incorrect to demonstration failure message
         });
 
     var actualResult = false;
     mockAuditLogger.Setup(al => al.LogOrder(It.IsAny<Order>(), It.IsAny<OrderResponse>()))
-                    .Callback<Order, OrderResponse>((o, or) => actualResult = or.PaymentResult.Success);
+                    .Callback<Order, OrderResponse>((o, or) => actualResult = or.Success);
 
     var order = new Order();
     ordersController.SubmitOrder(order);
 
     mockAuditLogger.Verify(al => al.LogOrder(
         It.IsAny<Order>(),
-        It.Is<OrderResponse>(or => or.PaymentResult.Success == isSuccessOrder)), 
-        $"Expected AuditLog with PaymentResult.Success == {isSuccessOrder} but was {actualResult}");
+        It.Is<OrderResponse>(or => or.Success == isSuccessOrder)), 
+        $"Expected AuditLog with OrderResponse.Success == {isSuccessOrder} but was {actualResult}");
 }
 ```
 
@@ -285,7 +285,7 @@ public void Should_Call_Audit_Logger_When_Order_Attempted_MemberData(bool isSucc
 
     mockAuditLogger.Verify(al => al.LogOrder(
         It.IsAny<Order>(),
-        It.Is<OrderResponse>(or => or.PaymentResult.Success == isSuccessOrder)));
+        It.Is<OrderResponse>(or => or.Success == isSuccessOrder)));
 }
 ```
 
