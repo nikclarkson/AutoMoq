@@ -172,12 +172,11 @@ The previous test is sufficient in its functionality, but it lacks clarity in th
 ```csharp
 Message: 
     Moq.MockException : 
-    Expected invocation on the mock at least once, but was never performed: al => al.LogOrder(It.IsAny<Order>(), It.Is<OrderResponse>(or => or.PaymentResult.Success == False))
+    Expected invocation on the mock at least once, but was never performed: 
+        al => al.LogOrder(It.IsAny<Order>(), It.Is<OrderResponse>(or => or.PaymentResult.Success == False))
     
     Performed invocations:
-    
        Mock<IAuditLogger:1> (al):
-    
           IAuditLogger.LogOrder(Order, OrderResponse)
 ```
 The test tells us what failed, but it doesn't tell us why. In other words we know what was expected, but we already knew this because we wrote the test. What a test written this way fails to tell us is what was the actual value of the `PaymentResult.Success` of the `OrderResponse` that was given to our `mockAuditLogger` as a parameter. 
@@ -234,12 +233,11 @@ Now the previous test provides us more visibility into what went wrong with our 
 ```csharp
 Message: 
     Moq.MockException : Expected AuditLog with PaymentResult.Success == False but was True
-    Expected invocation on the mock at least once, but was never performed: al => al.LogOrder(It.IsAny<Order>(), It.Is<OrderResponse>(or => or.PaymentResult.Success == False))
+    Expected invocation on the mock at least once, but was never performed: 
+        al => al.LogOrder(It.IsAny<Order>(), It.Is<OrderResponse>(or => or.PaymentResult.Success == False))
     
     Performed invocations:
-    
        Mock<IAuditLogger:4> (al):
-    
           IAuditLogger.LogOrder(Order, OrderResponse)
 ```
 
