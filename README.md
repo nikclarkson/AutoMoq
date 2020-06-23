@@ -328,8 +328,8 @@ public void Should_Throw_On_Invalid_Payment_Method_FluentValidations()
 
     Action pay = () => paymentService.Pay(order);
     pay.Should().Throw<Exception>();
-} -->
-```
+}
+``` -->
 
 ## AutoFixture Examples
 
