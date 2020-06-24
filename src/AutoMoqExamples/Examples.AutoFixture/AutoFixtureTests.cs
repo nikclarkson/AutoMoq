@@ -174,7 +174,7 @@ namespace Examples.AutoFixture
 
             var orders = fixture.CreateMany<Order>();
 
-            orders.GroupBy(o => o.OrderId).Any(group => group.Count() > 1).Should().BeTrue();
+            orders.GroupBy(o => o.OrderId).Any(group => group.Count() > 1).Should().BeFalse();
         }
 
         [Fact]
